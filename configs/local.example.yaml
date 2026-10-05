@@ -1,0 +1,5 @@
+﻿server:
+  addr: "127.0.0.1:18080"
+database:
+  path: ".run/clipflow-learning.db"
+# Set CLIPFLOW_JWT_SECRET in the shell as a Base64 value of at least 32 random bytes.

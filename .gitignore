@@ -1,0 +1,17 @@
+﻿# Local runtime state: SQLite databases, Go caches, logs, and temporary test files.
+.run/
+
+# Local configuration may contain machine-specific paths or secrets.
+configs/local.yaml
+
+# Local editor settings.
+.vscode/
+
+# Build outputs.
+*.exe
+*.log
+
+# Local secrets, if added later.
+.env
+.env.*
+!.env.example
