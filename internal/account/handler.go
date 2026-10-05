@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"clipflow/internal/httpapi/middleware"
+	"clipflow/internal/httpapi/request"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,8 +24,7 @@ func NewHandler(service *Service) *Handler {
 // Login 读取登录 JSON，验证用户名和密码，并返回身份令牌。
 func (h *Handler) Login(c *gin.Context) {
 	var req LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "request body must contain valid JSON username and password"})
+	if !request.BindJSON(c, &req, "request body must contain valid JSON username and password") {
 		return
 	}
 	response, err := h.service.Login(c.Request.Context(), req)
@@ -62,8 +62,7 @@ func (h *Handler) Profile(c *gin.Context) {
 // Register 读取注册 JSON，调用注册业务，并按结果返回状态码。
 func (h *Handler) Register(c *gin.Context) {
 	var req RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "request body must contain valid JSON username and password"})
+	if !request.BindJSON(c, &req, "request body must contain valid JSON username and password") {
 		return
 	}
 	response, err := h.service.Register(c.Request.Context(), req)

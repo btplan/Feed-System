@@ -36,7 +36,7 @@ func TestVideoDetail(t *testing.T) {
 	}
 	tokens := auth.NewTokenManager("test-secret")
 	accounts := account.NewHandler(account.NewService(account.NewRepository(db), tokens))
-	videos := video.NewHandler(video.NewService(video.NewRepository(db)))
+	videos := video.NewHandler(video.NewService(video.NewRepository(db), t.TempDir()))
 	router := NewRouter(tokens, accounts, videos)
 
 	for _, tc := range []struct {

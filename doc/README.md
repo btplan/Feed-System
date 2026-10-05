@@ -1,5 +1,7 @@
 # 学习入口
 
+当前学习：[第十一课：上传视频](stage-11-upload-video.md) → [第十二课：引用上传发布](stage-12-publish-upload.md)。2026-10-05 用户明确先补齐业务 Demo，再不断迭代；本轮明确授权一次写两课并 push，以下一般节奏遇到明确授权时以用户要求为准。
+
 换电脑或新开对话时，参阅 [迁移与接续说明](migration.md)；项目根目录 AGENTS.md 指向这里。
 
 学习者已有 SQL 基础和 Go 基本语法，尚不能独立设计架构或实现完整业务。
@@ -25,9 +27,9 @@ Gin/Gorm 仅初步了解，Redis、RabbitMQ、Worker 必须从基础开始。
 11. 每轮任务只允许一个小目标；助手不能预先生成未来链路的完整实现。
 12. 学习者卡住时，助手继续把当前小步拆小，指出要查看的具体代码位置，不要求学习者自行设计函数。
 13. 每份阶段教学文档的代码阅读顺序必须写 VS Code Quick Open 可用的相对“文件路径:行号”。
-    学习者按 Ctrl+P 后粘贴该文本即可定位；不在本地 Markdown 中使用跨渲染器不可靠的文件超链接。
+    学习者按 Ctrl+P 后粘贴该文本即可定位；同时提供可点击的相对文件超链接，行号写在链接旁；不要把行号混进 Markdown 的本地文件地址。
 
-工作目录：`D:\Personal\project\clipflow`。
+工作目录：`D:\Personal\project\Feed-System`。
 用户原参考路径 `D:\Personal\project\feedsystem\_video\_go` 不存在；实际发现并只读检查的是
 `D:\Personal\project\feedsystem_video_go`。路径对应关系仍可由用户纠正。
 禁止修改参考项目，也不连接或更改其数据库。

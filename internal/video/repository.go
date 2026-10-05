@@ -36,7 +36,7 @@ func (r *Repository) ListNewest(ctx context.Context, limit int, offset int) ([]V
 
 // Migrate 创建或补齐视频表、点赞关系表以及对应的索引。
 func Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&Video{}, &VideoLike{})
+	return db.AutoMigrate(&Video{}, &VideoLike{}, &Upload{})
 }
 
 // FindByID 根据视频编号读取一条视频，找不到时保留数据库的未找到错误。

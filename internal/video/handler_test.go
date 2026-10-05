@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"clipflow/internal/auth"
@@ -32,12 +33,15 @@ func TestPublish(t *testing.T) {
 	t.Cleanup(func() { _ = sqlDB.Close() })
 	tokens := auth.NewTokenManager("test-secret")
 	router := gin.New()
-	registerTestRoutes(router, db, tokens)
+	registerTestRoutes(t, router, db, tokens)
 	accessToken, err := tokens.Issue(42, "video_author")
 	if err != nil {
 		t.Fatal(err)
 	}
-	published := postVideo(router, accessToken, `{"title":"我的第一条视频","playback_url":"https://media.example.com/video-1.mp4"}`)
+	if err := db.Create(&Upload{ID: strings.Repeat("a", 32), OwnerID: 42, ContentType: "video/mp4", SizeBytes: 24}).Error; err != nil {
+		t.Fatal(err)
+	}
+	published := postVideo(router, accessToken, `{"title":"我的第一条视频","upload_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}`)
 	if published.Code != http.StatusCreated {
 		t.Fatalf("publish status=%d body=%s", published.Code, published.Body.String())
 	}
@@ -52,11 +56,11 @@ func TestPublish(t *testing.T) {
 	if err := db.First(&stored, result.ID).Error; err != nil || stored.AuthorID != 42 {
 		t.Fatalf("stored video=%+v err=%v", stored, err)
 	}
-	if missingToken := postVideo(router, "", `{"title":"我的第一条视频","playback_url":"https://media.example.com/video-1.mp4"}`); missingToken.Code != http.StatusUnauthorized {
+	if missingToken := postVideo(router, "", `{"title":"我的第一条视频","upload_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}`); missingToken.Code != http.StatusUnauthorized {
 		t.Fatalf("missing token status=%d body=%s", missingToken.Code, missingToken.Body.String())
 	}
-	if invalidURL := postVideo(router, accessToken, `{"title":"我的第一条视频","playback_url":"ftp://media.example.com/video-1.mp4"}`); invalidURL.Code != http.StatusBadRequest {
-		t.Fatalf("invalid URL status=%d body=%s", invalidURL.Code, invalidURL.Body.String())
+	if legacyRequest := postVideo(router, accessToken, `{"title":"我的第一条视频","playback_url":"ftp://media.example.com/video-1.mp4"}`); legacyRequest.Code != http.StatusBadRequest {
+		t.Fatalf("legacy request status=%d body=%s", legacyRequest.Code, legacyRequest.Body.String())
 	}
 }
 
@@ -81,7 +85,7 @@ func TestListNewest(t *testing.T) {
 		}
 	}
 	router := gin.New()
-	handler := NewHandler(NewService(NewRepository(db)))
+	handler := NewHandler(NewService(NewRepository(db), t.TempDir()))
 	router.GET("/videos", handler.ListNewest)
 	firstPage := getVideos(router, "/videos?limit=2&offset=0")
 	if firstPage.Code != http.StatusOK {
@@ -128,8 +132,8 @@ func getVideos(router *gin.Engine, path string) *httptest.ResponseRecorder {
 }
 
 // registerTestRoutes 为视频测试配置与正式路由相同的受保护发布接口。
-func registerTestRoutes(router *gin.Engine, db *gorm.DB, tokens *auth.TokenManager) {
-	handler := NewHandler(NewService(NewRepository(db)))
+func registerTestRoutes(t *testing.T, router *gin.Engine, db *gorm.DB, tokens *auth.TokenManager) {
+	handler := NewHandler(NewService(NewRepository(db), t.TempDir()))
 	protected := router.Group("/")
 	protected.Use(middleware.RequireUser(tokens))
 	protected.POST("/videos", handler.Publish)
