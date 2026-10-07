@@ -37,7 +37,7 @@ func main() {
 	tokens := auth.NewTokenManager(cfg.Auth.JWTSecret)
 
 	accounts := account.NewHandler(account.NewService(account.NewRepository(db), tokens))
-	videos := video.NewHandler(video.NewService(video.NewRepository(db), cfg.Storage.UploadDir))
+	videos := video.NewHandler(video.NewService(video.NewRepository(db)))
 	router := httpapi.NewRouter(tokens, accounts, videos)
 
 	log.Fatal(router.Run(cfg.Server.Addr))

@@ -12,9 +12,6 @@ import (
 
 // Config 保存 API 启动时需要读取的服务地址和后续数据库配置。
 type Config struct {
-	Storage struct {
-		UploadDir string `yaml:"upload_dir"`
-	} `yaml:"storage"`
 	Server struct {
 		Addr string `yaml:"addr"`
 	} `yaml:"server"`
@@ -46,8 +43,5 @@ func Load(path string) (Config, error) {
 		return cfg, fmt.Errorf("CLIPFLOW_JWT_SECRET must be base64 encoding of at least 32 random bytes")
 	}
 	cfg.Auth.JWTSecret = string(secret)
-	if strings.TrimSpace(cfg.Storage.UploadDir) == "" {
-		cfg.Storage.UploadDir = ".run/uploads"
-	}
 	return cfg, nil
 }

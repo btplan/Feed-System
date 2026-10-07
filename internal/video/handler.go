@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"clipflow/internal/httpapi/middleware"
-	"clipflow/internal/httpapi/request"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,16 +46,13 @@ func (h *Handler) Publish(c *gin.Context) {
 		return
 	}
 	var req PublishRequest
-	if !request.BindJSON(c, &req, "request body must contain valid JSON title and upload_id") {
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "request body must contain valid JSON title and playback_url"})
 		return
 	}
 	video, err := h.service.Publish(c.Request.Context(), userID, req)
 	switch {
-	case errors.Is(err, ErrUploadNotFound):
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	case errors.Is(err, ErrUploadUsed):
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-	case errors.Is(err, ErrInvalidTitle), errors.Is(err, ErrInvalidUploadID):
+	case errors.Is(err, ErrInvalidTitle), errors.Is(err, ErrInvalidPlaybackURL):
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	case err != nil:
 		log.Printf("publish video: %v", err)

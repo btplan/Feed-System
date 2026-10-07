@@ -47,7 +47,7 @@ func TestVideoLike(t *testing.T) {
 	tokens := auth.NewTokenManager("test-secret")
 	router := NewRouter(tokens,
 		account.NewHandler(account.NewService(account.NewRepository(db), tokens)),
-		video.NewHandler(video.NewService(video.NewRepository(db), t.TempDir())))
+		video.NewHandler(video.NewService(video.NewRepository(db))))
 	for _, tc := range []struct {
 		method string
 		path   string
